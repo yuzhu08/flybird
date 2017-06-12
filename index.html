@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <canvas id="cv"></canvas>
+
+  <script>
+    var cv = document.getElementById('cv');
+    cv.height = 600;
+    cv.width = 800;
+    cv.style.border = '1px solid red';
+
+    var context = cv.getContext('2d');
+
+    // 让小鸟翅膀扇动
+    var img = new Image();
+    img.src = "images/birds.png";
+    var frameCount = 0;
+
+    var lastFrameTime = new Date();
+    var curFrameTime;
+    var delta = 0;
+    var speed = 0;
+    var a = 0.0005;
+    var y = 100;
+    var maxSpeed = 0.3;
+    var maxAngle = 45;
+    var curAngle = 0;
+    img.onload = function() {
+      var imgW = img.width / 3;
+      var imgH = img.height;
+
+      (function render() {
+        // 保存状态
+        context.save();
+        context.clearRect(0, 0, cv.width, cv.height);
+
+        context.translate(100, y);
+
+        var curFrameTime = new Date();
+
+        delta = curFrameTime - lastFrameTime;
+
+        lastFrameTime = curFrameTime;
+
+        speed += a * delta;
+
+        y += speed * delta + 1 / 2 * a * delta * delta;
+
+        curAngle = speed / maxSpeed * maxAngle;
+
+        if (curAngle > maxAngle) {
+          curAngle = maxAngle;
+        }
+        if (curAngle < -maxAngle) {
+          curAngle = -maxAngle;
+        }
+        context.rotate(Math.PI / 180 * (curAngle));
+
+
+        context.drawImage(img, imgW * frameCount++, 0, imgW, imgH, -1 / 2 * imgW, -1 / 2 * imgH, imgW, imgH);
+
+        // 恢复状态
+        context.restore();
+
+
+        requestAnimationFrame(render);
+
+        // 注册点击事件，小鸟反弹
+        cv.addEventListener("click", function() {
+          speed = -0.3;
+        })
+
+
+        frameCount %= 3;
+
+      })()
+
+    }
+  </script>
+</body>
+
+</html>
